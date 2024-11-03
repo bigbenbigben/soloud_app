@@ -1,6 +1,6 @@
 # pomodoro_app
 
-A new Flutter project.
+A new Flutter project for pomodoro management application.
 
 ## Getting Started
 
