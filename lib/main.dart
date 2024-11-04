@@ -34,6 +34,7 @@ class _CounterPageState extends State<CounterPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('カウンターアプリ'),
+        centerTitle: true,  // タイトルを中央に配置
       ),
       body: Center(
         child: Column(
