@@ -24,14 +24,34 @@ class _TimerPageState extends State<TimerPage> {
   late Timer _timer;
   int _seconds = 0;
   bool _isRunning = false;
+  bool _buttonCooldown = false; // ボタンが押されるのを制御するフラグ
 
-  Color get _startButtonColor => _isRunning ? Colors.blue[700]! : Colors.blue[300]!;
+  Color get _startButtonColor {
+    if (_buttonCooldown) {
+      return _isRunning ? Colors.blue : Colors.blue[100]!; // チャタリング中は色を固定
+    }
+    return _isRunning ? Colors.blue : Colors.blue[100]!;
+  }
+
+  Color get _startTextColor {
+    if (_buttonCooldown) {
+      return _isRunning ? Colors.white : Colors.blue[900]!; // チャタリング中は色を固定
+    }
+    return _isRunning ? Colors.white : Colors.blue[900]!;
+  }
 
   void _startTimer() {
-    if (_isRunning) return;
+    if (_isRunning || _buttonCooldown) return;
 
     setState(() {
-      _isRunning = true; // タイマーが動いている状態に設定
+      _isRunning = true;
+      _buttonCooldown = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 30), () {
+      setState(() {
+        _buttonCooldown = false;
+      });
     });
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -42,18 +62,36 @@ class _TimerPageState extends State<TimerPage> {
   }
 
   void _stopTimer() {
+    if (_buttonCooldown) return;
+
     if (_isRunning) {
       _timer.cancel();
       setState(() {
-        _isRunning = false; // タイマーが止まっている状態に設定
+        _isRunning = false;
+        _buttonCooldown = true;
+      });
+
+      Future.delayed(Duration(milliseconds: 30), () {
+        setState(() {
+          _buttonCooldown = false;
+        });
       });
     }
   }
 
   void _resetTimer() {
-    _stopTimer(); // 停止してからリセット
+    if (_buttonCooldown) return;
+
+    _stopTimer();
     setState(() {
-      _seconds = 0; // 秒数をリセット
+      _seconds = 0;
+      _buttonCooldown = true;
+    });
+
+    Future.delayed(Duration(milliseconds: 30), () {
+      setState(() {
+        _buttonCooldown = false;
+      });
     });
   }
 
@@ -73,46 +111,52 @@ class _TimerPageState extends State<TimerPage> {
           children: [
             Text(
               _formatTime(_seconds),
-              style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 72, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: _stopTimer,
-                  child: Text('STOP', style: TextStyle(color: Colors.white)), // 文字色を白に
+                  onPressed: _buttonCooldown ? null : _stopTimer,
+                  child: Text('STOP', style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(), // 正方形にするために修正
+                    shape: RoundedRectangleBorder(),
                     padding: EdgeInsets.all(20),
-                    backgroundColor: Colors.blue[700], // STOPボタンの色
-                    side: BorderSide(color: Colors.blue, width: 2), // 縁取りの設定
+                    backgroundColor: Colors.blue,
+                    side: BorderSide(color: Colors.blue.shade100, width: 2),
+                    elevation: 3, // 立体感を追加
+                    shadowColor: Colors.blue[900], // 影の色
                   ),
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
-                  onPressed: _startTimer,
-                  child: Text('START', style: TextStyle(color: Colors.white)), // 文字色を白に
+                  onPressed: _buttonCooldown ? null : _startTimer,
+                  child: Text('START', style: TextStyle(color: _startTextColor)),
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
                     padding: EdgeInsets.all(24),
-                    backgroundColor: _startButtonColor, // STARTボタンの色を動的に決定
-                    side: BorderSide(color: Colors.blue, width: 2), // 縁取りの設定
+                    backgroundColor: _startButtonColor,
+                    side: BorderSide(color: Colors.blue.shade900, width: 2),
+                    elevation: 3, // 立体感を追加
+                    shadowColor: Colors.blue[900], // 影の色
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20), // STOPとSTARTの間にスペースを追加
+            SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _resetTimer,
-              child: Text('RESET', style: TextStyle(color: Colors.white)), // 文字色を白に
+              onPressed: _buttonCooldown ? null : _resetTimer,
+              child: Text('RESET', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20), // 角を丸くする
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 64, vertical: 16), // 長方形のサイズを設定
-                backgroundColor: Colors.blue[700], // RESETボタンの色
-                side: BorderSide(color: Colors.blue, width: 2), // 縁取りの設定
+                padding: EdgeInsets.symmetric(horizontal: 64, vertical: 16),
+                backgroundColor: Colors.blue,
+                side: BorderSide(color: Colors.blue.shade100, width: 2),
+                elevation: 3, // 立体感を追加
+                shadowColor: Colors.blue[900], // 影の色
               ),
             ),
           ],
