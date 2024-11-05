@@ -28,7 +28,10 @@ class _TimerPageState extends State<TimerPage> {
   void _startTimer() {
     if (_isRunning) return;
 
-    _isRunning = true;
+    setState(() {
+      _isRunning = true;
+    });
+    
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _seconds++;
@@ -39,8 +42,17 @@ class _TimerPageState extends State<TimerPage> {
   void _stopTimer() {
     if (_isRunning) {
       _timer.cancel();
-      _isRunning = false;
+      setState(() {
+        _isRunning = false;
+      });
     }
+  }
+
+  void _resetTimer() {
+    _stopTimer(); // 停止してからリセット
+    setState(() {
+      _seconds = 0; // 秒数をリセット
+    });
   }
 
   String _formatTime(int seconds) {
@@ -85,6 +97,16 @@ class _TimerPageState extends State<TimerPage> {
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: 20), // STOPとSTARTの間にスペースを追加
+            ElevatedButton(
+              onPressed: _resetTimer,
+              child: Text('RESET'),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(),
+                padding: EdgeInsets.symmetric(horizontal: 48, vertical: 16), // 長方形のサイズを設定
+                backgroundColor: Colors.blue,
+              ),
             ),
           ],
         ),
