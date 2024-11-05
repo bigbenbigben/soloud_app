@@ -1,6 +1,5 @@
-// import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
+import 'dart:async';
 
 void main() {
   runApp(MyApp());
@@ -10,50 +9,85 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: CounterPage(),
+      home: TimerPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class CounterPage extends StatefulWidget {
+class TimerPage extends StatefulWidget {
   @override
-  _CounterPageState createState() => _CounterPageState();
+  _TimerPageState createState() => _TimerPageState();
 }
 
-class _CounterPageState extends State<CounterPage> {
-  int _counter = 0;
+class _TimerPageState extends State<TimerPage> {
+  late Timer _timer;
+  int _seconds = 0;
+  bool _isRunning = false;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+  void _startTimer() {
+    if (_isRunning) return;
+
+    _isRunning = true;
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _seconds++;
+      });
     });
+  }
+
+  void _stopTimer() {
+    if (_isRunning) {
+      _timer.cancel();
+      _isRunning = false;
+    }
+  }
+
+  String _formatTime(int seconds) {
+    final hours = (seconds ~/ 3600).toString().padLeft(2, '0');
+    final minutes = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$hours:$minutes:$secs';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('カウンターアプリ'),
-        centerTitle: true,  // タイトルを中央に配置
-      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
             Text(
-              'ボタンを押すと数字が増えます',
+              _formatTime(_seconds),
+              style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
             ),
-            Text(
-              '$_counter',
-              style: TextStyle(fontSize: 40),
+            SizedBox(height: 50),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _stopTimer,
+                  child: Text('STOP'),
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(24),
+                    backgroundColor: Colors.blue,
+                  ),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: _startTimer,
+                  child: Text('START'),
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(24),
+                    backgroundColor: Colors.blue,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
