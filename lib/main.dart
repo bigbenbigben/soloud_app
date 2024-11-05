@@ -86,6 +86,7 @@ class _TimerPageState extends State<TimerPage> {
                     shape: RoundedRectangleBorder(), // 正方形にするために修正
                     padding: EdgeInsets.all(20),
                     backgroundColor: Colors.blue[700], // STOPボタンの色
+                    side: BorderSide(color: Colors.blue, width: 2), // 縁取りの設定
                   ),
                 ),
                 SizedBox(width: 10),
@@ -96,6 +97,7 @@ class _TimerPageState extends State<TimerPage> {
                     shape: CircleBorder(),
                     padding: EdgeInsets.all(24),
                     backgroundColor: _startButtonColor, // STARTボタンの色を動的に決定
+                    side: BorderSide(color: Colors.blue, width: 2), // 縁取りの設定
                   ),
                 ),
               ],
@@ -110,6 +112,7 @@ class _TimerPageState extends State<TimerPage> {
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 64, vertical: 16), // 長方形のサイズを設定
                 backgroundColor: Colors.blue[700], // RESETボタンの色
+                side: BorderSide(color: Colors.blue, width: 2), // 縁取りの設定
               ),
             ),
           ],
