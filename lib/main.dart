@@ -83,12 +83,12 @@ class _TimerPageState extends State<TimerPage> {
                   onPressed: _stopTimer,
                   child: Text('STOP', style: TextStyle(color: Colors.white)), // 文字色を白に
                   style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(24),
+                    shape: RoundedRectangleBorder(), // 正方形にするために修正
+                    padding: EdgeInsets.all(20),
                     backgroundColor: Colors.blue[700], // STOPボタンの色
                   ),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: _startTimer,
                   child: Text('START', style: TextStyle(color: Colors.white)), // 文字色を白に
@@ -105,8 +105,10 @@ class _TimerPageState extends State<TimerPage> {
               onPressed: _resetTimer,
               child: Text('RESET', style: TextStyle(color: Colors.white)), // 文字色を白に
               style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(),
-                padding: EdgeInsets.symmetric(horizontal: 48, vertical: 16), // 長方形のサイズを設定
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20), // 角を丸くする
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 64, vertical: 16), // 長方形のサイズを設定
                 backgroundColor: Colors.blue[700], // RESETボタンの色
               ),
             ),
