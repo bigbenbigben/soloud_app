@@ -31,7 +31,7 @@ class _TimerPageState extends State<TimerPage> {
     setState(() {
       _isRunning = true;
     });
-    
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         _seconds++;
@@ -79,21 +79,21 @@ class _TimerPageState extends State<TimerPage> {
               children: [
                 ElevatedButton(
                   onPressed: _stopTimer,
-                  child: Text('STOP'),
+                  child: Text('STOP', style: TextStyle(color: Colors.white)), // 文字色を白に
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
                     padding: EdgeInsets.all(24),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue[700], // 濃い青に変更
                   ),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: _startTimer,
-                  child: Text('START'),
+                  child: Text('START', style: TextStyle(color: Colors.white)), // 文字色を白に
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
                     padding: EdgeInsets.all(24),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue[300], // 薄い青に変更
                   ),
                 ),
               ],
@@ -101,11 +101,11 @@ class _TimerPageState extends State<TimerPage> {
             SizedBox(height: 20), // STOPとSTARTの間にスペースを追加
             ElevatedButton(
               onPressed: _resetTimer,
-              child: Text('RESET'),
+              child: Text('RESET', style: TextStyle(color: Colors.white)), // 文字色を白に
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(),
                 padding: EdgeInsets.symmetric(horizontal: 48, vertical: 16), // 長方形のサイズを設定
-                backgroundColor: Colors.blue,
+                backgroundColor: Colors.blue[700], // 濃い青に変更
               ),
             ),
           ],
