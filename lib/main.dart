@@ -25,11 +25,13 @@ class _TimerPageState extends State<TimerPage> {
   int _seconds = 0;
   bool _isRunning = false;
 
+  Color get _startButtonColor => _isRunning ? Colors.blue[700]! : Colors.blue[300]!;
+
   void _startTimer() {
     if (_isRunning) return;
 
     setState(() {
-      _isRunning = true;
+      _isRunning = true; // タイマーが動いている状態に設定
     });
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -43,7 +45,7 @@ class _TimerPageState extends State<TimerPage> {
     if (_isRunning) {
       _timer.cancel();
       setState(() {
-        _isRunning = false;
+        _isRunning = false; // タイマーが止まっている状態に設定
       });
     }
   }
@@ -83,7 +85,7 @@ class _TimerPageState extends State<TimerPage> {
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
                     padding: EdgeInsets.all(24),
-                    backgroundColor: Colors.blue[700], // 濃い青に変更
+                    backgroundColor: Colors.blue[700], // STOPボタンの色
                   ),
                 ),
                 SizedBox(width: 20),
@@ -93,7 +95,7 @@ class _TimerPageState extends State<TimerPage> {
                   style: ElevatedButton.styleFrom(
                     shape: CircleBorder(),
                     padding: EdgeInsets.all(24),
-                    backgroundColor: Colors.blue[300], // 薄い青に変更
+                    backgroundColor: _startButtonColor, // STARTボタンの色を動的に決定
                   ),
                 ),
               ],
@@ -105,7 +107,7 @@ class _TimerPageState extends State<TimerPage> {
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(),
                 padding: EdgeInsets.symmetric(horizontal: 48, vertical: 16), // 長方形のサイズを設定
-                backgroundColor: Colors.blue[700], // 濃い青に変更
+                backgroundColor: Colors.blue[700], // RESETボタンの色
               ),
             ),
           ],
