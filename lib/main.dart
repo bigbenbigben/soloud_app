@@ -1,191 +1,118 @@
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
+import 'dart:developer' as dev;
 
-void main() {
-  runApp(MyApp());
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+
+import 'audio/audio_controller.dart';
+
+void main() async {
+  // The `flutter_soloud` package logs everything
+  // (from severe warnings to fine debug messages)
+  // using the standard `package:logging`.
+  // You can listen to the logs as shown below.
+  Logger.root.level = kDebugMode ? Level.FINE : Level.INFO;
+  Logger.root.onRecord.listen((record) {
+    dev.log(
+      record.message,
+      time: record.time,
+      level: record.level.value,
+      name: record.loggerName,
+      zone: record.zone,
+      error: record.error,
+      stackTrace: record.stackTrace,
+    );
+  });
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final audioController = AudioController();
+  await audioController.initialize();
+
+  runApp(
+    MyApp(audioController: audioController),
+  );
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({required this.audioController, super.key});
+
+  final AudioController audioController;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: TimerPage(),
-      debugShowCheckedModeBanner: false,
+      title: 'Flutter SoLoud Demo',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.brown),
+        useMaterial3: true,
+      ),
+      home: MyHomePage(audioController: audioController),
     );
   }
 }
 
-class TimerPage extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.audioController});
+
+  final AudioController audioController;
+
   @override
-  _TimerPageState createState() => _TimerPageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _TimerPageState extends State<TimerPage> {
-  late Timer _timer;
-  late AudioPlayer _audioPlayer;
-  int _seconds = 0;
-  bool _isRunning = false;
-  bool _buttonCooldown = false; // ボタンが押されるのを制御するフラグ
+class _MyHomePageState extends State<MyHomePage> {
+  static const _gap = SizedBox(height: 16);
 
-  @override
-  void initState() {
-    super.initState();
-    final _audioPlayer = AudioPlayer();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  void _playClickSound() async {
-    try {
-      _audioPlayer.play(AssetSource('sounds/choice2.mp3'));
-    } catch (e) {
-      print('Error playing audio: $e');
-    }
-  }
-
-  Color get _startButtonColor {
-    if (_buttonCooldown) {
-      return _isRunning ? Colors.blue : Colors.blue[100]!;
-    }
-    return _isRunning ? Colors.blue : Colors.blue[100]!;
-  }
-
-  Color get _startTextColor {
-    if (_buttonCooldown) {
-      return _isRunning ? Colors.white : Colors.blue[900]!;
-    }
-    return _isRunning ? Colors.white : Colors.blue[900]!;
-  }
-
-  void _startTimer() async {
-    if (_isRunning || _buttonCooldown) return;
-
-    _playClickSound(); // クリック音を再生
-
-    setState(() {
-      _isRunning = true;
-      _buttonCooldown = true;
-    });
-
-    Future.delayed(Duration(milliseconds: 50), () {
-      setState(() {
-        _buttonCooldown = false;
-      });
-    });
-
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _seconds++;
-      });
-    });
-  }
-
-  void _stopTimer() async {
-    if (_buttonCooldown) return;
-
-    if (_isRunning) {
-      _timer.cancel();
-      _playClickSound(); // クリック音を再生
-
-      setState(() {
-        _isRunning = false;
-        _buttonCooldown = true;
-      });
-
-      Future.delayed(Duration(milliseconds: 50), () {
-        setState(() {
-          _buttonCooldown = false;
-        });
-      });
-    }
-  }
-
-  void _resetTimer() async {
-    if (_buttonCooldown) return;
-
-    _playClickSound(); // クリック音を再生
-
-    _stopTimer();
-    setState(() {
-      _seconds = 0;
-      _buttonCooldown = true;
-    });
-
-    Future.delayed(Duration(milliseconds: 50), () {
-      setState(() {
-        _buttonCooldown = false;
-      });
-    });
-  }
-
-  String _formatTime(int seconds) {
-    final hours = (seconds ~/ 3600).toString().padLeft(2, '0');
-    final minutes = ((seconds % 3600) ~/ 60).toString().padLeft(2, '0');
-    final secs = (seconds % 60).toString().padLeft(2, '0');
-    return '$hours:$minutes:$secs';
-  }
+  bool filterApplied = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text('Flutter SoLoud Demo')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _formatTime(_seconds),
-              style: TextStyle(fontSize: 72, fontWeight: FontWeight.bold),
+          children: <Widget>[
+            OutlinedButton(
+              onPressed: () {
+                widget.audioController.playSound('assets/sounds/pew1.mp3');
+              },
+              child: const Text('Play Sound'),
             ),
-            SizedBox(height: 8),
+            _gap,
+            OutlinedButton(
+              onPressed: () {
+                widget.audioController.startMusic();
+              },
+              child: const Text('Start Music'),
+            ),
+            _gap,
+            OutlinedButton(
+              onPressed: () {
+                widget.audioController.fadeOutMusic();
+              },
+              child: const Text('Fade Out Music'),
+            ),
+            _gap,
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                ElevatedButton(
-                  onPressed: _buttonCooldown ? null : _stopTimer,
-                  child: Text('STOP', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(),
-                    padding: EdgeInsets.all(20),
-                    backgroundColor: Colors.blue,
-                    side: BorderSide(color: Colors.blue.shade100, width: 2),
-                    elevation: 3,
-                    shadowColor: Colors.blue[900],
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: _buttonCooldown ? null : _startTimer,
-                  child: Text('START', style: TextStyle(color: _startTextColor)),
-                  style: ElevatedButton.styleFrom(
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.all(24),
-                    backgroundColor: _startButtonColor,
-                    side: BorderSide(color: Colors.blue.shade900, width: 2),
-                    elevation: 3,
-                    shadowColor: Colors.blue[900],
-                  ),
+                const Text('Apply Filter'),
+                Checkbox(
+                  value: filterApplied,
+                  onChanged: (value) {
+                    setState(() {
+                      filterApplied = value!;
+                    });
+                    if (filterApplied) {
+                      widget.audioController.applyFilter();
+                    } else {
+                      widget.audioController.removeFilter();
+                    }
+                  },
                 ),
               ],
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _buttonCooldown ? null : _resetTimer,
-              child: Text('RESET', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 64, vertical: 16),
-                backgroundColor: Colors.blue,
-                side: BorderSide(color: Colors.blue.shade100, width: 2),
-                elevation: 3,
-                shadowColor: Colors.blue[900],
-              ),
             ),
           ],
         ),
