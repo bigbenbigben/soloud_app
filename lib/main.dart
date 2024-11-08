@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,33 +23,56 @@ class TimerPage extends StatefulWidget {
 
 class _TimerPageState extends State<TimerPage> {
   late Timer _timer;
+  late AudioPlayer _audioPlayer;
   int _seconds = 0;
   bool _isRunning = false;
   bool _buttonCooldown = false; // ボタンが押されるのを制御するフラグ
 
+  @override
+  void initState() {
+    super.initState();
+    final _audioPlayer = AudioPlayer();
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void _playClickSound() async {
+    try {
+      _audioPlayer.play(AssetSource('sounds/choice2.mp3'));
+    } catch (e) {
+      print('Error playing audio: $e');
+    }
+  }
+
   Color get _startButtonColor {
     if (_buttonCooldown) {
-      return _isRunning ? Colors.blue : Colors.blue[100]!; // チャタリング中は色を固定
+      return _isRunning ? Colors.blue : Colors.blue[100]!;
     }
     return _isRunning ? Colors.blue : Colors.blue[100]!;
   }
 
   Color get _startTextColor {
     if (_buttonCooldown) {
-      return _isRunning ? Colors.white : Colors.blue[900]!; // チャタリング中は色を固定
+      return _isRunning ? Colors.white : Colors.blue[900]!;
     }
     return _isRunning ? Colors.white : Colors.blue[900]!;
   }
 
-  void _startTimer() {
+  void _startTimer() async {
     if (_isRunning || _buttonCooldown) return;
+
+    _playClickSound(); // クリック音を再生
 
     setState(() {
       _isRunning = true;
       _buttonCooldown = true;
     });
 
-    Future.delayed(Duration(milliseconds: 30), () {
+    Future.delayed(Duration(milliseconds: 50), () {
       setState(() {
         _buttonCooldown = false;
       });
@@ -61,17 +85,19 @@ class _TimerPageState extends State<TimerPage> {
     });
   }
 
-  void _stopTimer() {
+  void _stopTimer() async {
     if (_buttonCooldown) return;
 
     if (_isRunning) {
       _timer.cancel();
+      _playClickSound(); // クリック音を再生
+
       setState(() {
         _isRunning = false;
         _buttonCooldown = true;
       });
 
-      Future.delayed(Duration(milliseconds: 30), () {
+      Future.delayed(Duration(milliseconds: 50), () {
         setState(() {
           _buttonCooldown = false;
         });
@@ -79,8 +105,10 @@ class _TimerPageState extends State<TimerPage> {
     }
   }
 
-  void _resetTimer() {
+  void _resetTimer() async {
     if (_buttonCooldown) return;
+
+    _playClickSound(); // クリック音を再生
 
     _stopTimer();
     setState(() {
@@ -88,7 +116,7 @@ class _TimerPageState extends State<TimerPage> {
       _buttonCooldown = true;
     });
 
-    Future.delayed(Duration(milliseconds: 30), () {
+    Future.delayed(Duration(milliseconds: 50), () {
       setState(() {
         _buttonCooldown = false;
       });
@@ -125,8 +153,8 @@ class _TimerPageState extends State<TimerPage> {
                     padding: EdgeInsets.all(20),
                     backgroundColor: Colors.blue,
                     side: BorderSide(color: Colors.blue.shade100, width: 2),
-                    elevation: 3, // 立体感を追加
-                    shadowColor: Colors.blue[900], // 影の色
+                    elevation: 3,
+                    shadowColor: Colors.blue[900],
                   ),
                 ),
                 SizedBox(width: 10),
@@ -138,8 +166,8 @@ class _TimerPageState extends State<TimerPage> {
                     padding: EdgeInsets.all(24),
                     backgroundColor: _startButtonColor,
                     side: BorderSide(color: Colors.blue.shade900, width: 2),
-                    elevation: 3, // 立体感を追加
-                    shadowColor: Colors.blue[900], // 影の色
+                    elevation: 3,
+                    shadowColor: Colors.blue[900],
                   ),
                 ),
               ],
@@ -155,8 +183,8 @@ class _TimerPageState extends State<TimerPage> {
                 padding: EdgeInsets.symmetric(horizontal: 64, vertical: 16),
                 backgroundColor: Colors.blue,
                 side: BorderSide(color: Colors.blue.shade100, width: 2),
-                elevation: 3, // 立体感を追加
-                shadowColor: Colors.blue[900], // 影の色
+                elevation: 3,
+                shadowColor: Colors.blue[900],
               ),
             ),
           ],
