@@ -1,6 +1,6 @@
-# pomodoro_app
+# test_soloud
 
-A new Flutter project for pomodoro management application.
+A new Flutter project with soloud framework.
 
 ## Getting Started
 
@@ -14,3 +14,5 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+This project is created with [Add sound and music to your Flutter game](https://codelabs.developers.google.com/codelabs/flutter-codelab-soloud).
